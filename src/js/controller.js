@@ -1,8 +1,31 @@
+import { to2dIsometric } from "./isometric";
+
 export default class Controller {
 
 	constructor() {
 		this.animAmt = 0;
 		this.period = 3;
+
+		const size = 100;
+		this.points = [];
+		for (const x of [-1, 1]) {
+			for (const y of [-1, 1]) {
+				for (const z of [-1, 1]) {
+					this.points.push({
+						x: size * x,
+						y: size * y,
+						z: size * z,
+					});
+				}
+			}
+		}
+
+		this.lines = [];
+		for (let i = 0; i < this.points.length; i++) {
+			for (let j = i + 1; j < this.points.length; j++) {
+				this.lines.push([this.points[i], this.points[j]]);
+			}
+		}
 	}
 
 	/**
@@ -21,14 +44,19 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
-		context.beginPath();
-		context.fillStyle = 'black';
-		context.moveTo(0, 0);
-		context.arc(0, 0, 100, 0, 2 * Math.PI * this.animAmt);
-		context.fill();
+		for (const line of this.lines) {
+			context.beginPath();
+			context.strokeStyle = 'black';
+			context.lineCap = 'round';
+			context.lineJoin = 'round';
 
-		context.scale(10, 10);
-		context.fillText(this.period * this.animAmt, 0, 0);
+			const [start3d, end3d] = line;
+			const start2d = to2dIsometric(start3d.x, start3d.y, start3d.z);
+			const end2d = to2dIsometric(end3d.x, end3d.y, end3d.z);
+			context.moveTo(start2d.x, start2d.y);
+			context.lineTo(end2d.x, end2d.y);
+			context.stroke();
+		}
 	}
 
 }
