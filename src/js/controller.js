@@ -1,10 +1,10 @@
 import { toIsometric } from "./isometric";
-import { slurp } from "./util";
+import { slurp, easeInOut } from "./util";
 
 const hexSide = 35;
 const hexHeight = Math.sqrt(3) * hexSide;
 const hexWidth = 2 * hexSide;
-const cubeSide = hexWidth * Math.SQRT2 / 4;
+const cubeSide = hexHeight * Math.SQRT2 / 4;
 
 export default class Controller {
 
@@ -85,8 +85,8 @@ export default class Controller {
 				this.renderCube(
 					context,
 					{
-						x: hexWidth * adjustedX,
-						y: hexHeight * y
+						y: hexWidth * adjustedX,
+						x: hexHeight * y
 					}
 				);
 			}
@@ -97,6 +97,7 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	renderCube(context, center) {
+		const rotateAmt = easeInOut(this.animAmt) + 0.5;
 		context.save();
 		context.translate(center.x, center.y);
 		const cutOff = cubeSide * Math.SQRT1_2;
@@ -107,7 +108,7 @@ export default class Controller {
 			context.lineJoin = 'round';
 
 			const yAngle = Math.PI / 4;
-			const xzAngle = this.animAmt * Math.PI / 2;
+			const xzAngle =  rotateAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
 			// SS = screen space (?)
 			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
