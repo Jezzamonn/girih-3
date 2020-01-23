@@ -32,6 +32,11 @@ export default class Controller {
 			}
 		}
 
+		this.points = this.points.map(point => ({
+			x: size * point.x,
+			y: size * point.y,
+			z: size * point.z,
+		}));
 		this.lines = this.lines.map(line => line.map(point => ({
 			x: size * point.x,
 			y: size * point.y,
@@ -55,14 +60,15 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
+		const yAngle = Math.PI / 4;
+		const xzAngle = this.animAmt * Math.PI / 2;
+
 		for (const line of this.lines) {
 			context.beginPath();
 			context.strokeStyle = 'black';
 			context.lineCap = 'round';
 			context.lineJoin = 'round';
 
-			const yAngle = Math.PI / 4;
-			const xzAngle = this.animAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
 			// SS = screen space (?)
 			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
@@ -70,15 +76,18 @@ export default class Controller {
 			context.moveTo(startSS.x, startSS.y);
 			context.lineTo(endSS.x, endSS.y);
 			context.stroke();
-
-			const midPointSS = {
-				x: (startSS.x + endSS.x) / 2,
-				y: (startSS.y + endSS.y) / 2,
-				z: (startSS.z + endSS.z) / 2,
-			}
-			context.fillStyle = 'black';
-			context.fillText(midPointSS.z.toFixed(1), midPointSS.x, midPointSS.y);
 		}
+
+		for (const point of this.points) {
+			const pointSS = toIsometric(point.x, point.y, point.z, xzAngle, yAngle);
+			this.renderPointZ(context, pointSS);
+		}
+	}
+
+	renderPointZ(context, point) {
+		context.fillStyle = 'black';
+		context.fillText(point.z.toFixed(1), point.x, point.y);
+
 	}
 
 }
