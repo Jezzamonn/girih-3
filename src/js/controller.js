@@ -25,7 +25,7 @@ export default class Controller {
 					Math.abs(p1.x - p2.x) + 
 					Math.abs(p1.y - p2.y) + 
 					Math.abs(p1.z - p2.z);
-				if (dist != 2) {
+				if (dist == 2) {
 					continue;
 				}
 				this.lines.push([this.points[i], this.points[j]]);
