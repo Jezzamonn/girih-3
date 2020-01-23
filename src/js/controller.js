@@ -67,13 +67,17 @@ export default class Controller {
 			// SS = screen space (?)
 			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
 			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
-			const combinedZ = startSS.z + endSS.z;
-			if (combinedZ < 0) {
-				continue;
-			}
 			context.moveTo(startSS.x, startSS.y);
 			context.lineTo(endSS.x, endSS.y);
 			context.stroke();
+
+			const midPointSS = {
+				x: (startSS.x + endSS.x) / 2,
+				y: (startSS.y + endSS.y) / 2,
+				z: (startSS.z + endSS.z) / 2,
+			}
+			context.fillStyle = 'black';
+			context.fillText(midPointSS.z.toFixed(1), midPointSS.x, midPointSS.y);
 		}
 	}
 
