@@ -11,11 +11,7 @@ export default class Controller {
 		for (const x of [-1, 1]) {
 			for (const y of [-1, 1]) {
 				for (const z of [-1, 1]) {
-					this.points.push({
-						x: size * x,
-						y: size * y,
-						z: size * z,
-					});
+					this.points.push({x, y, z});
 				}
 			}
 		}
@@ -23,9 +19,24 @@ export default class Controller {
 		this.lines = [];
 		for (let i = 0; i < this.points.length; i++) {
 			for (let j = i + 1; j < this.points.length; j++) {
+				const p1 = this.points[i];
+				const p2 = this.points[j];
+				const dist = 
+					Math.abs(p1.x - p2.x) + 
+					Math.abs(p1.y - p2.y) + 
+					Math.abs(p1.z - p2.z);
+				if (dist != 2) {
+					continue;
+				}
 				this.lines.push([this.points[i], this.points[j]]);
 			}
 		}
+
+		this.lines = this.lines.map(line => line.map(point => ({
+			x: size * point.x,
+			y: size * point.y,
+			z: size * point.z,
+		})));
 	}
 
 	/**
