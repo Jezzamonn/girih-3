@@ -4,7 +4,7 @@ import { slurp } from "./util";
 const hexSide = 35;
 const hexHeight = Math.sqrt(3) * hexSide;
 const hexWidth = 2 * hexSide;
-const cubeSide = hexWidth * Math.SQRT1_2;
+const cubeSide = hexWidth * Math.SQRT2 / 4;
 
 export default class Controller {
 
