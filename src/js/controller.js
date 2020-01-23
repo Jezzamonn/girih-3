@@ -1,4 +1,4 @@
-import { to2dIsometric } from "./isometric";
+import { toIsometric } from "./isometric";
 
 export default class Controller {
 
@@ -25,7 +25,7 @@ export default class Controller {
 					Math.abs(p1.x - p2.x) + 
 					Math.abs(p1.y - p2.y) + 
 					Math.abs(p1.z - p2.z);
-				if (dist == 2) {
+				if (dist != 2) {
 					continue;
 				}
 				this.lines.push([this.points[i], this.points[j]]);
@@ -64,10 +64,15 @@ export default class Controller {
 			const yAngle = Math.PI / 4;
 			const xzAngle = this.animAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
-			const start2d = to2dIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
-			const end2d = to2dIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
-			context.moveTo(start2d.x, start2d.y);
-			context.lineTo(end2d.x, end2d.y);
+			// SS = screen space (?)
+			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
+			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
+			const combinedZ = startSS.z + endSS.z;
+			if (combinedZ < 0) {
+				continue;
+			}
+			context.moveTo(startSS.x, startSS.y);
+			context.lineTo(endSS.x, endSS.y);
 			context.stroke();
 		}
 	}

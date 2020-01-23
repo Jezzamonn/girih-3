@@ -6,6 +6,13 @@ export function to2dIsometric(x, y, z, xzAngle=0, yAngle=0) {
     return {x: transformed[0][0], y: transformed[1][0]};
 }
 
+export function toIsometric(x, y, z, xzAngle=0, yAngle=0) {
+    const transformMatrix = getRotationMatrix(xzAngle, yAngle);
+
+    const transformed = matrixMul(transformMatrix, [[x], [y], [z]]);
+    return columnVecToPoint(transformed);
+}
+
 export function getRotationMatrix(xzAngle, yAngle) {
     // s/o to wikipedia for these rotation matrices
     const xzRotateMatrix = [
