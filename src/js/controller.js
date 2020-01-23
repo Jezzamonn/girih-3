@@ -50,9 +50,11 @@ export default class Controller {
 			context.lineCap = 'round';
 			context.lineJoin = 'round';
 
+			const yAngle = Math.PI / 4;
+			const xzAngle = this.animAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
-			const start2d = to2dIsometric(start3d.x, start3d.y, start3d.z);
-			const end2d = to2dIsometric(end3d.x, end3d.y, end3d.z);
+			const start2d = to2dIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
+			const end2d = to2dIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
 			context.moveTo(start2d.x, start2d.y);
 			context.lineTo(end2d.x, end2d.y);
 			context.stroke();
