@@ -1,6 +1,11 @@
 import { toIsometric } from "./isometric";
 import { slurp } from "./util";
 
+const hexSide = 35;
+const hexHeight = Math.sqrt(3) * hexSide;
+const hexWidth = 2 * hexSide;
+const cubeSide = hexWidth * Math.SQRT1_2;
+
 export default class Controller {
 
 	constructor() {
@@ -34,9 +39,9 @@ export default class Controller {
 		}
 
 		this.lines = this.lines.map(line => line.map(point => ({
-			x: size * point.x,
-			y: size * point.y,
-			z: size * point.z,
+			x: cubeSide * point.x,
+			y: cubeSide * point.y,
+			z: cubeSide * point.z,
 		})));
 	}
 
@@ -56,7 +61,45 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
-		const cutOff = 100 * Math.SQRT1_2;
+		this.renderCubes(context);
+	}
+
+	/**
+	 * @param {!CanvasRenderingContext2D} context
+	 */
+	renderCubes(context) {
+		const halfLayers = 5;
+		for (let y = -halfLayers; y <= halfLayers; y++) {
+			for (let x = -halfLayers; x <= halfLayers; x++) {
+				var adjustedX = y % 2 == 0 ? x : x + 0.5;
+				if (y % 2 == 0) {
+					if (x % 3 == 0) {
+						continue;
+					}
+				}
+				else {
+					if ((x + 2) % 3 == 0) {
+						continue;
+					}
+				}
+				this.renderCube(
+					context,
+					{
+						x: hexWidth * adjustedX,
+						y: hexHeight * y
+					}
+				);
+			}
+		}
+	}
+
+	/**
+	 * @param {!CanvasRenderingContext2D} context
+	 */
+	renderCube(context, center) {
+		context.save();
+		context.translate(center.x, center.y);
+		const cutOff = cubeSide * Math.SQRT1_2;
 		for (const line of this.lines) {
 			context.beginPath();
 			context.strokeStyle = 'black';
@@ -79,6 +122,7 @@ export default class Controller {
 			context.lineTo(endSS.x, endSS.y);
 			context.stroke();
 		}
+		context.restore();
 	}
 
 }
