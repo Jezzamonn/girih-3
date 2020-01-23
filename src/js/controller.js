@@ -56,6 +56,7 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
+		const cutOff = 100 * Math.SQRT1_2;
 		for (const line of this.lines) {
 			context.beginPath();
 			context.strokeStyle = 'black';
@@ -70,7 +71,7 @@ export default class Controller {
 			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
 			const midZ = (startSS.z + endSS.z) / 2;
 
-			if (midZ < -100 * Math.SQRT1_2) {
+			if (midZ < -cutOff || midZ > cutOff) {
 				continue;
 			}
 
