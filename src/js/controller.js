@@ -6,7 +6,7 @@ const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 const hexSide = 35;
 const hexHeight = Math.sqrt(3) * hexSide;
 const hexWidth = 2 * hexSide;
-const cubeSide = hexHeight * Math.SQRT2 / 4;
+const cubeSide = hexHeight * Math.SQRT2 / 2;
 
 export default class Controller {
 
@@ -40,14 +40,14 @@ export default class Controller {
 		}
 
 		this.points = this.points.map(point => ({
-			x: cubeSide * point.x,
-			y: cubeSide * point.y,
-			z: cubeSide * point.z,
+			x: 0.5 * cubeSide * point.x,
+			y: 0.5 * cubeSide * point.y,
+			z: 0.5 * cubeSide * point.z,
 		}));
 		this.lines = this.lines.map(line => line.map(point => ({
-			x: cubeSide * point.x,
-			y: cubeSide * point.y,
-			z: cubeSide * point.z,
+			x: 0.5 * cubeSide * point.x,
+			y: 0.5 * cubeSide * point.y,
+			z: 0.5 * cubeSide * point.z,
 		})));
 	}
 
@@ -67,7 +67,26 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
-		this.renderCubes(context);
+		this.renderCubeSet(context, {x: 0, y: 0});
+	}
+
+	renderCubeSet(context, center) {
+		const directions = [
+			{x: 1, y: 0, z: 0},
+			{x: -1, y: 0, z: 0},
+			{x: 0, y: 1, z: 0},
+			{x: 0, y: -1, z: 0},
+			{x: 0, y: 0, z: 1},
+			{x: 0, y: 0, z: -1},
+		].map(p => ({
+			x: 2 * cubeSide * p.x,
+			y: 2 * cubeSide * p.y,
+			z: 2 * cubeSide * p.z,
+		}));
+		for (const dir of directions) {
+			const dirSS = toIsometric(dir.x, dir.y, dir.z, Math.PI / 4, PROJECTION_ANGLE);
+			this.renderCube(context, dirSS);
+		}
 	}
 
 	/**
@@ -103,7 +122,7 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	renderCube(context, center) {
-		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+		const rotateAmt = 0.5;//easeInOut(this.animAmt) + 0.5;
 		const xzAngle = rotateAmt * Math.PI / 2;
 		context.save();
 		context.translate(center.x, center.y);
