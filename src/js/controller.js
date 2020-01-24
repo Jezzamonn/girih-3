@@ -3,7 +3,7 @@ import { slurp, easeInOut } from "./util";
 
 const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 
-const hexSide = 100;
+const hexSide = 35;
 const hexHeight = Math.sqrt(3) * hexSide;
 const hexWidth = 2 * hexSide;
 const cubeSide = hexHeight * Math.SQRT2 / 4;
@@ -67,7 +67,7 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
-		this.renderCube(context, {x: 0, y: 0});
+		this.renderCubes(context);
 	}
 
 	/**
