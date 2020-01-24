@@ -1,7 +1,10 @@
 import { toIsometric } from "./isometric";
 import { slurp, easeInOut } from "./util";
 
-const hexSide = 35;
+const DEG_TO_RAD = Math.PI / 180;
+const PROJECTION_ANGLE = 35.264 * DEG_TO_RAD;
+
+const hexSide = 100;
 const hexHeight = Math.sqrt(3) * hexSide;
 const hexWidth = 2 * hexSide;
 const cubeSide = hexHeight * Math.SQRT2 / 4;
@@ -12,7 +15,6 @@ export default class Controller {
 		this.animAmt = 0;
 		this.period = 3;
 
-		const size = 100;
 		this.points = [];
 		for (const x of [-1, 1]) {
 			for (const y of [-1, 1]) {
@@ -61,7 +63,26 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
-		this.renderCubes(context);
+		this.renderCube(context, {x: 0, y: 0});
+		
+		// Debug: draw a hex
+		context.beginPath();
+		context.strokeStyle = 'red';
+		for (let i = 0; i < 6; i++) {
+			const amt = i / 6;
+			const angle = 2 * Math.PI * amt + Math.PI / 2;
+			const x = hexSide * Math.cos(angle);
+			const y = hexSide * Math.sin(angle);
+
+			if (i == 0) {
+				context.moveTo(x, y);
+			}
+			else {
+				context.lineTo(x, y);
+			}
+		}
+		context.closePath();
+		context.stroke();
 	}
 
 	/**
@@ -97,7 +118,7 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	renderCube(context, center) {
-		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+		const rotateAmt = 0.5;//easeInOut(this.animAmt) + 0.5;
 		context.save();
 		context.translate(center.x, center.y);
 		const cutOff = cubeSide * Math.SQRT1_2;
@@ -107,12 +128,11 @@ export default class Controller {
 			context.lineCap = 'round';
 			context.lineJoin = 'round';
 
-			const yAngle = Math.PI / 4;
 			const xzAngle =  rotateAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
 			// SS = screen space (?)
-			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, yAngle);
-			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, yAngle);
+			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, PROJECTION_ANGLE);
+			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, PROJECTION_ANGLE);
 			const midZ = (startSS.z + endSS.z) / 2;
 
 			if (midZ < -cutOff || midZ > cutOff) {
