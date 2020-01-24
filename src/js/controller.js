@@ -1,8 +1,7 @@
 import { toIsometric } from "./isometric";
 import { slurp, easeInOut } from "./util";
 
-const DEG_TO_RAD = Math.PI / 180;
-const PROJECTION_ANGLE = 35.264 * DEG_TO_RAD;
+const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 
 const hexSide = 100;
 const hexHeight = Math.sqrt(3) * hexSide;
@@ -40,6 +39,11 @@ export default class Controller {
 			}
 		}
 
+		this.points = this.points.map(point => ({
+			x: cubeSide * point.x,
+			y: cubeSide * point.y,
+			z: cubeSide * point.z,
+		}));
 		this.lines = this.lines.map(line => line.map(point => ({
 			x: cubeSide * point.x,
 			y: cubeSide * point.y,
@@ -64,25 +68,6 @@ export default class Controller {
 	 */
 	render(context) {
 		this.renderCube(context, {x: 0, y: 0});
-		
-		// Debug: draw a hex
-		context.beginPath();
-		context.strokeStyle = 'red';
-		for (let i = 0; i < 6; i++) {
-			const amt = i / 6;
-			const angle = 2 * Math.PI * amt + Math.PI / 2;
-			const x = hexSide * Math.cos(angle);
-			const y = hexSide * Math.sin(angle);
-
-			if (i == 0) {
-				context.moveTo(x, y);
-			}
-			else {
-				context.lineTo(x, y);
-			}
-		}
-		context.closePath();
-		context.stroke();
 	}
 
 	/**
@@ -118,26 +103,44 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	renderCube(context, center) {
-		const rotateAmt = 0.5;//easeInOut(this.animAmt) + 0.5;
+		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+		const xzAngle = rotateAmt * Math.PI / 2;
 		context.save();
 		context.translate(center.x, center.y);
-		const cutOff = cubeSide * Math.SQRT1_2;
+
+		let mostZPoint = null;
+		let mostZPointSS = null;
+		let leastZPoint = null;
+		let leastZPointSS = null;
+		for (const point3d of this.points) {
+			const pointSS = toIsometric(point3d.x, point3d.y, point3d.z, xzAngle, PROJECTION_ANGLE);
+			if (mostZPoint == null || pointSS.z > mostZPointSS.z) {
+				mostZPoint = point3d;
+				mostZPointSS = pointSS;
+			}
+			if (leastZPoint == null || pointSS.z < leastZPointSS.z) {
+				leastZPoint = point3d;
+				leastZPointSS = pointSS;
+			}
+		}
+
 		for (const line of this.lines) {
 			context.beginPath();
 			context.strokeStyle = 'black';
 			context.lineCap = 'round';
 			context.lineJoin = 'round';
 
-			const xzAngle =  rotateAmt * Math.PI / 2;
 			const [start3d, end3d] = line;
+			if (pointsAreEqual(start3d, mostZPoint) ||
+				pointsAreEqual(start3d, leastZPoint) ||
+				pointsAreEqual(end3d, mostZPoint) ||
+				pointsAreEqual(end3d, leastZPoint)) {
+				continue;
+			}
+
 			// SS = screen space (?)
 			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, PROJECTION_ANGLE);
 			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, PROJECTION_ANGLE);
-			const midZ = (startSS.z + endSS.z) / 2;
-
-			if (midZ < -cutOff || midZ > cutOff) {
-				continue;
-			}
 
 			context.moveTo(startSS.x, startSS.y);
 			context.lineTo(endSS.x, endSS.y);
@@ -146,4 +149,8 @@ export default class Controller {
 		context.restore();
 	}
 
+}
+
+function pointsAreEqual(p1, p2) {
+	return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
 }
