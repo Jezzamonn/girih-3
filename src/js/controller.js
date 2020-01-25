@@ -67,7 +67,10 @@ export default class Controller {
 	 * @param {!CanvasRenderingContext2D} context
 	 */
 	render(context) {
+		context.save();
+		context.rotate(Math.PI / 6);
 		this.renderCubeSet(context, {x: 0, y: 0});
+		context.restore();
 	}
 
 	renderCubeSet(context, center) {
