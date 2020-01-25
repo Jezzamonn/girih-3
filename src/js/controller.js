@@ -89,7 +89,7 @@ export default class Controller {
 			y: 2 * cubeSide * p.y,
 			z: 2 * cubeSide * p.z,
 		})).map(p => toIsometric(p.x, p.y, p.z, xzAngle, PROJECTION_ANGLE));
-		screenSpacePoints.sort((a, b) => b.z - a.z);
+		screenSpacePoints.sort((a, b) => a.z - b.z);
 
 		for (const dirSS of screenSpacePoints) {
 			this.renderShape(context, points, dirSS);
