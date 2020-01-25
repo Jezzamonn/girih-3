@@ -12,7 +12,7 @@ export default class Controller {
 
 	constructor() {
 		this.animAmt = 0;
-		this.period = 3;
+		this.period = 9;
 
 		this.points = [];
 		for (const x of [-1, 1]) {
@@ -68,12 +68,20 @@ export default class Controller {
 	 */
 	render(context) {
 		context.save();
-		context.rotate(Math.PI / 6);
-		this.renderCubeSet(context, {x: 0, y: 0});
+
+		const stage = Math.floor(3 * this.animAmt);
+		const subAnimAmt = (3 * this.animAmt) % 1;
+		
+		context.rotate(stage * Math.PI / 3);
+
+		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
+
+		this.renderCubeSet(context, {x: 0, y: 0}, rotateAmt);
+
 		context.restore();
 	}
 
-	renderCubeSet(context, center) {
+	renderCubeSet(context, center, rotateAmt) {
 		const directions = [
 			{x: 1, y: 0, z: 0},
 			{x: -1, y: 0, z: 0},
@@ -82,10 +90,9 @@ export default class Controller {
 			{x: 0, y: 0, z: 1},
 			{x: 0, y: 0, z: -1},
 		];
-		const rotateAmt = easeInOut(this.animAmt) + 0.5;
 		const xzAngle = rotateAmt * Math.PI / 2;
 
-		const points = this.getCubePoints();
+		const points = this.getCubePoints(rotateAmt);
 
 		const screenSpacePoints = directions.map(p => ({
 			x: 2 * cubeSide * p.x,
@@ -155,8 +162,7 @@ export default class Controller {
 		context.restore();
 	}
 
-	getCubePoints() {
-		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+	getCubePoints(rotateAmt) {
 		const xzAngle = rotateAmt * Math.PI / 2;
 
 		const screenSpacePoints = this.points.map(p => toIsometric(p.x, p.y, p.z, xzAngle, PROJECTION_ANGLE));
