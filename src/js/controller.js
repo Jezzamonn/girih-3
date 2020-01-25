@@ -78,14 +78,21 @@ export default class Controller {
 			{x: 0, y: -1, z: 0},
 			{x: 0, y: 0, z: 1},
 			{x: 0, y: 0, z: -1},
-		].map(p => ({
+		];
+		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+		const xzAngle = rotateAmt * Math.PI / 2;
+
+		const points = this.getCubePoints();
+
+		const screenSpacePoints = directions.map(p => ({
 			x: 2 * cubeSide * p.x,
 			y: 2 * cubeSide * p.y,
 			z: 2 * cubeSide * p.z,
-		}));
-		for (const dir of directions) {
-			const dirSS = toIsometric(dir.x, dir.y, dir.z, Math.PI / 4, PROJECTION_ANGLE);
-			this.renderCube(context, dirSS);
+		})).map(p => toIsometric(p.x, p.y, p.z, xzAngle, PROJECTION_ANGLE));
+		screenSpacePoints.sort((a, b) => b.z - a.z);
+
+		for (const dirSS of screenSpacePoints) {
+			this.renderShape(context, points, dirSS);
 		}
 	}
 
@@ -121,51 +128,52 @@ export default class Controller {
 	/**
 	 * @param {!CanvasRenderingContext2D} context
 	 */
-	renderCube(context, center) {
-		const rotateAmt = 0.5;//easeInOut(this.animAmt) + 0.5;
-		const xzAngle = rotateAmt * Math.PI / 2;
+	renderShape(context, points, center) {
 		context.save();
 		context.translate(center.x, center.y);
 
-		let mostZPoint = null;
+		context.beginPath();
+		context.fillStyle = 'white';
+		context.strokeStyle = 'black';
+		context.lineCap = 'round';
+		context.lineJoin = 'round';
+		for (let i = 0; i < points.length; i++) {
+			if (i == 0) {
+				context.moveTo(points[i].x, points[i].y);
+			}
+			else {
+				context.lineTo(points[i].x, points[i].y);
+			}
+		}
+		context.closePath();
+		context.fill();
+		context.stroke();
+
+		context.restore();
+	}
+
+	getCubePoints() {
+		const rotateAmt = easeInOut(this.animAmt) + 0.5;
+		const xzAngle = rotateAmt * Math.PI / 2;
+
+		const screenSpacePoints = this.points.map(p => toIsometric(p.x, p.y, p.z, xzAngle, PROJECTION_ANGLE));
+
 		let mostZPointSS = null;
-		let leastZPoint = null;
 		let leastZPointSS = null;
-		for (const point3d of this.points) {
-			const pointSS = toIsometric(point3d.x, point3d.y, point3d.z, xzAngle, PROJECTION_ANGLE);
-			if (mostZPoint == null || pointSS.z > mostZPointSS.z) {
-				mostZPoint = point3d;
+		for (const pointSS of screenSpacePoints) {
+			if (mostZPointSS == null || pointSS.z > mostZPointSS.z) {
 				mostZPointSS = pointSS;
 			}
-			if (leastZPoint == null || pointSS.z < leastZPointSS.z) {
-				leastZPoint = point3d;
+			if (leastZPointSS == null || pointSS.z < leastZPointSS.z) {
 				leastZPointSS = pointSS;
 			}
 		}
 
-		for (const line of this.lines) {
-			context.beginPath();
-			context.strokeStyle = 'black';
-			context.lineCap = 'round';
-			context.lineJoin = 'round';
+		const drawPoints = screenSpacePoints.filter(p => p != leastZPointSS && p != mostZPointSS);
+		// Sort them based on their angle around the center. Either anti-clockwise or clockwise, I'm not sure.
+		drawPoints.sort((a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x));
 
-			const [start3d, end3d] = line;
-			if (pointsAreEqual(start3d, mostZPoint) ||
-				pointsAreEqual(start3d, leastZPoint) ||
-				pointsAreEqual(end3d, mostZPoint) ||
-				pointsAreEqual(end3d, leastZPoint)) {
-				continue;
-			}
-
-			// SS = screen space (?)
-			const startSS = toIsometric(start3d.x, start3d.y, start3d.z, xzAngle, PROJECTION_ANGLE);
-			const endSS = toIsometric(end3d.x, end3d.y, end3d.z, xzAngle, PROJECTION_ANGLE);
-
-			context.moveTo(startSS.x, startSS.y);
-			context.lineTo(endSS.x, endSS.y);
-			context.stroke();
-		}
-		context.restore();
+		return drawPoints;
 	}
 
 }
