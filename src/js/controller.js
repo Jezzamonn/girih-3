@@ -72,7 +72,7 @@ export default class Controller {
 		const stage = Math.floor(3 * this.animAmt);
 		const subAnimAmt = (3 * this.animAmt) % 1;
 		
-		context.rotate(stage * Math.PI / 3);
+		context.rotate(stage * 2 * Math.PI / 3);
 
 		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
 
