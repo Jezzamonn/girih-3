@@ -6,7 +6,7 @@ const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 const hexSide = 35;
 const hexHeight = 2 * hexSide;
 const hexWidth = Math.sqrt(3) * hexSide;
-const cubeSide = hexHeight * Math.SQRT2 / 2;
+const cubeSide = hexHeight * Math.SQRT2 / 3;
 // const cubeSizeHackAmt = 
 
 export default class Controller {
