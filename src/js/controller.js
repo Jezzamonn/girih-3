@@ -69,8 +69,8 @@ export default class Controller {
 	render(context) {
 		context.save();
 
-		const stage = 0;//Math.floor(3 * this.animAmt);
-		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
+		const stage = Math.floor(3 * this.animAmt);
+		const subAnimAmt = (3 * this.animAmt) % 1;
 		
 		context.rotate(stage * 2 * Math.PI / 3);
 
@@ -120,8 +120,8 @@ export default class Controller {
 				this.renderCubeSet(
 					context,
 					{
-						x: 3.5 * hexWidth * x,
-						y: 3.5 * hexHeight * adjustedY,
+						x: 3.465 * hexWidth * x,
+						y: 3.465 * hexHeight * adjustedY,
 					},
 					rotateAmt
 				);
