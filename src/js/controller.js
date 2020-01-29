@@ -7,6 +7,7 @@ const hexSide = 35;
 const hexHeight = 2 * hexSide;
 const hexWidth = Math.sqrt(3) * hexSide;
 const cubeSide = hexHeight * Math.SQRT2 / 2;
+// const cubeSizeHackAmt = 
 
 export default class Controller {
 
@@ -70,7 +71,7 @@ export default class Controller {
 		context.save();
 
 		const stage = Math.floor(3 * this.animAmt);
-		const subAnimAmt = (3 * this.animAmt) % 1;
+		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
 		
 		context.rotate(stage * 2 * Math.PI / 3);
 
@@ -149,8 +150,27 @@ export default class Controller {
 				context.lineTo(points[i].x, points[i].y);
 			}
 		}
+
 		context.closePath();
 		context.fill();
+		context.stroke();
+
+		// draw a debug hex thing?
+		context.beginPath();
+		context.strokeStyle = 'red';
+		for (let i = 0; i < 6; i ++) {
+			const amt = i / 6;
+			const angle = 2 * Math.PI * amt;
+			const x = hexSide * Math.cos(angle);
+			const y = hexSide * Math.sin(angle);
+			if (i == 0) {
+				context.moveTo(x, y);
+			}
+			else {
+				context.lineTo(x, y);
+			}
+		}
+		context.closePath();
 		context.stroke();
 
 		context.restore();
