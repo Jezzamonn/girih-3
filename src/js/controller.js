@@ -4,8 +4,8 @@ import { slurp, easeInOut } from "./util";
 const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 
 const hexSide = 35;
-const hexHeight = Math.sqrt(3) * hexSide;
-const hexWidth = 2 * hexSide;
+const hexHeight = 2 * hexSide;
+const hexWidth = Math.sqrt(3) * hexSide;
 const cubeSide = hexHeight * Math.SQRT2 / 2;
 
 export default class Controller {
@@ -76,7 +76,7 @@ export default class Controller {
 
 		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
 
-		this.renderCubeSet(context, {x: 0, y: 0}, rotateAmt);
+		this.renderCubes(context, rotateAmt);
 
 		context.restore();
 	}
@@ -101,15 +101,18 @@ export default class Controller {
 		})).map(p => toIsometric(p.x, p.y, p.z, xzAngle, PROJECTION_ANGLE));
 		screenSpacePoints.sort((a, b) => a.z - b.z);
 
+		context.save();
+		context.translate(center.x, center.y);
 		for (const dirSS of screenSpacePoints) {
 			this.renderShape(context, points, dirSS);
 		}
+		context.restore();
 	}
 
 	/**
 	 * @param {!CanvasRenderingContext2D} context
 	 */
-	renderCubes(context) {
+	renderCubes(context, rotateAmt) {
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
@@ -124,12 +127,13 @@ export default class Controller {
 						continue;
 					}
 				}
-				this.renderCube(
+				this.renderCubeSet(
 					context,
 					{
-						y: hexWidth * adjustedX,
-						x: hexHeight * y
-					}
+						y: hexHeight * adjustedX,
+						x: hexWidth * y
+					},
+					rotateAmt
 				);
 			}
 		}
