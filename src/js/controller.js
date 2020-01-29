@@ -6,8 +6,7 @@ const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 const hexSide = 35;
 const hexHeight = 2 * hexSide;
 const hexWidth = Math.sqrt(3) * hexSide;
-const cubeSide = hexHeight * Math.SQRT2 / 3;
-// const cubeSizeHackAmt = 
+const cubeSide = hexHeight * (Math.SQRT2 / 2) * (Math.sqrt(3) / 2);
 
 export default class Controller {
 
@@ -121,8 +120,8 @@ export default class Controller {
 				this.renderCubeSet(
 					context,
 					{
-						x: 3.465 * hexWidth * x,
-						y: 3.465 * hexHeight * adjustedY,
+						x: 3 * hexWidth * x,
+						y: 3 * hexHeight * adjustedY,
 					},
 					rotateAmt
 				);
@@ -153,24 +152,6 @@ export default class Controller {
 
 		context.closePath();
 		context.fill();
-		context.stroke();
-
-		// draw a debug hex thing?
-		context.beginPath();
-		context.strokeStyle = 'red';
-		for (let i = 0; i < 6; i ++) {
-			const amt = i / 6;
-			const angle = 2 * Math.PI * (amt + 0.25);
-			const x = hexSide * Math.cos(angle);
-			const y = hexSide * Math.sin(angle);
-			if (i == 0) {
-				context.moveTo(x, y);
-			}
-			else {
-				context.lineTo(x, y);
-			}
-		}
-		context.closePath();
 		context.stroke();
 
 		context.restore();
