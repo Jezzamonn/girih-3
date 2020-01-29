@@ -160,7 +160,7 @@ export default class Controller {
 		context.strokeStyle = 'red';
 		for (let i = 0; i < 6; i ++) {
 			const amt = i / 6;
-			const angle = 2 * Math.PI * amt;
+			const angle = 2 * Math.PI * (amt + 0.25);
 			const x = hexSide * Math.cos(angle);
 			const y = hexSide * Math.sin(angle);
 			if (i == 0) {
