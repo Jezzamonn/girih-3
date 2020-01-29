@@ -69,8 +69,8 @@ export default class Controller {
 	render(context) {
 		context.save();
 
-		const stage = Math.floor(3 * this.animAmt);
-		const subAnimAmt = (3 * this.animAmt) % 1;
+		const stage = 0;//Math.floor(3 * this.animAmt);
+		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
 		
 		context.rotate(stage * 2 * Math.PI / 3);
 
@@ -116,22 +116,12 @@ export default class Controller {
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
-				var adjustedX = y % 2 == 0 ? x : x + 0.5;
-				if (y % 2 == 0) {
-					if (x % 3 == 0) {
-						continue;
-					}
-				}
-				else {
-					if ((x + 2) % 3 == 0) {
-						continue;
-					}
-				}
+				var adjustedY = x % 2 == 0 ? y : y + 0.5;
 				this.renderCubeSet(
 					context,
 					{
-						y: hexHeight * adjustedX,
-						x: hexWidth * y
+						x: 3.5 * hexWidth * x,
+						y: 3.5 * hexHeight * adjustedY,
 					},
 					rotateAmt
 				);
