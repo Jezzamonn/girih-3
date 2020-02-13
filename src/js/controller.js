@@ -12,7 +12,7 @@ export default class Controller {
 
 	constructor() {
 		this.animAmt = 0;
-		this.period = 4;
+		this.period = 6;
 
 		this.points = [];
 		for (const x of [-1, 1]) {
