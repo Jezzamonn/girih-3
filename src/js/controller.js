@@ -191,7 +191,7 @@ export default class Controller {
 					context,
 					{
 						x: 2 * hexWidth * adjustedX,
-						y: hexHeight * y
+						y: 1.5 * hexHeight * y
 					}
 				);
 			}
@@ -205,7 +205,6 @@ export default class Controller {
 		context.save();
 		context.translate(center.x, center.y);
 
-		context.strokeStyle = 'red';
 		context.beginPath();
 		for (let i = 0; i < 12; i++) {
 			const amt = i / 12;
