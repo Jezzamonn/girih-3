@@ -1,5 +1,5 @@
 import { toIsometric } from "./isometric";
-import { slurp, easeInOut } from "./util";
+import { slurp, easeInOut, divideInterval } from "./util";
 
 const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 
@@ -69,16 +69,22 @@ export default class Controller {
 	render(context) {
 		context.save();
 
-		const stage = 0;//Math.floor(3 * this.animAmt);
-		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
+		const stage = Math.floor(3 * this.animAmt);
+		const subAnimAmt = (3 * this.animAmt) % 1;
+		const rotateyAmt = divideInterval(subAnimAmt, 0, 0.5);
+		const starSplitAmt = divideInterval(subAnimAmt, 0.5, 1);
 		
-		// context.rotate(stage * 2 * Math.PI / 3);
-		// context.translate(hexWidth, hexHeight / 2);
+		context.rotate(stage * 2 * Math.PI / 3);
+		context.translate(hexWidth, hexHeight / 2);
 
-		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
+		const rotateAmt = easeInOut(rotateyAmt) + 0.5;
 
-		// this.renderCubes(context, rotateAmt);
-		this.renderStars(context);
+		if (subAnimAmt < 0.5) {
+			this.renderCubes(context, rotateAmt);
+		}
+		else {
+			this.renderStars(context, starSplitAmt);
+		}
 
 		context.restore();
 	}
@@ -182,17 +188,20 @@ export default class Controller {
 		return drawPoints;
 	}
 
-	renderStars(context) {
+	renderStars(context, splitAmt) {
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
-				var adjustedX = y % 2 == 0 ? x : x + 0.5;
+				const adjustedX = y % 2 == 0 ? x : x + 0.5;
+				let point = {
+					x: 2 * hexWidth * adjustedX,
+					y: 1.5 * hexHeight * y
+				};
+				point.x *= splitAmt;
+				point.y *= splitAmt;
 				this.renderStar(
 					context,
-					{
-						x: 2 * hexWidth * adjustedX,
-						y: 1.5 * hexHeight * y
-					}
+					point,
 				);
 			}
 		}
@@ -229,4 +238,8 @@ export default class Controller {
 
 function pointsAreEqual(p1, p2) {
 	return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
+}
+
+function sqMagnitude(p) {
+	return p.x * p.x + p.y * p.y;
 }
