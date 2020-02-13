@@ -69,15 +69,15 @@ export default class Controller {
 	render(context) {
 		context.save();
 
-		const stage = Math.floor(3 * this.animAmt);
+		const stage = 0;//Math.floor(3 * this.animAmt);
 		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
 		
-		context.rotate(stage * 2 * Math.PI / 3);
-		context.translate(hexWidth, hexHeight / 2);
+		// context.rotate(stage * 2 * Math.PI / 3);
+		// context.translate(hexWidth, hexHeight / 2);
 
 		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
 
-		this.renderCubes(context, rotateAmt);
+		// this.renderCubes(context, rotateAmt);
 		this.renderStars(context);
 
 		context.restore();
@@ -190,7 +190,7 @@ export default class Controller {
 				this.renderStar(
 					context,
 					{
-						x: 3 * hexWidth * adjustedX,
+						x: 2 * hexWidth * adjustedX,
 						y: hexHeight * y
 					}
 				);
