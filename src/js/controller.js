@@ -70,7 +70,7 @@ export default class Controller {
 		context.save();
 
 		const stage = Math.floor(3 * this.animAmt);
-		const subAnimAmt = (3 * this.animAmt) % 1;
+		const subAnimAmt = 0;//(3 * this.animAmt) % 1;
 		
 		context.rotate(stage * 2 * Math.PI / 3);
 		context.translate(hexWidth, hexHeight / 2);
@@ -78,6 +78,7 @@ export default class Controller {
 		const rotateAmt = easeInOut(subAnimAmt) + 0.5;
 
 		this.renderCubes(context, rotateAmt);
+		this.renderStars(context);
 
 		context.restore();
 	}
@@ -179,6 +180,50 @@ export default class Controller {
 		drawPoints.sort((a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x));
 
 		return drawPoints;
+	}
+
+	renderStars(context) {
+		const halfLayers = 5;
+		for (let y = -halfLayers; y <= halfLayers; y++) {
+			for (let x = -halfLayers; x <= halfLayers; x++) {
+				var adjustedX = y % 2 == 0 ? x : x + 0.5;
+				this.renderStar(
+					context,
+					{
+						x: 3 * hexWidth * adjustedX,
+						y: hexHeight * y
+					}
+				);
+			}
+		}
+	}
+
+	/**
+	 * @param {!CanvasRenderingContext2D} context
+	 */
+	renderStar(context, center) {
+		context.save();
+		context.translate(center.x, center.y);
+
+		context.strokeStyle = 'red';
+		context.beginPath();
+		for (let i = 0; i < 12; i++) {
+			const amt = i / 12;
+			const angle = 2 * Math.PI * (amt + 0.25);
+			const radius = i % 2 == 0 ? hexSide : Math.sqrt(3) * hexSide;
+			const x = radius * Math.cos(angle);
+			const y = radius * Math.sin(angle);
+			if (i == 0) {
+				context.moveTo(x, y);
+			}
+			else {
+				context.lineTo(x, y);
+			}
+		}
+		context.closePath();
+		context.stroke();
+
+		context.restore();
 	}
 
 }
