@@ -192,6 +192,7 @@ export default class Controller {
 
 	renderStars(context, center, splitAmt) {
 		const spaceMultiple = getSpacingMultiplier(splitAmt);
+		const rotation = getSpinAmt(splitAmt);
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
@@ -205,6 +206,7 @@ export default class Controller {
 				this.renderStar(
 					context,
 					point,
+					rotation
 				);
 			}
 		}
@@ -213,9 +215,10 @@ export default class Controller {
 	/**
 	 * @param {!CanvasRenderingContext2D} context
 	 */
-	renderStar(context, center) {
+	renderStar(context, center, rotation) {
 		context.save();
 		context.translate(center.x, center.y);
+		context.rotate(rotation);
 
 		context.beginPath();
 		for (let i = 0; i < 12; i++) {
@@ -243,6 +246,10 @@ function getSpacingMultiplier(splitAmt) {
 	const invertLoopedAmt = 1 - loop(splitAmt);
 	const biasedAmt = 1 - (invertLoopedAmt * invertLoopedAmt);
 	return 1 + 0.25 * biasedAmt;
+}
+
+function getSpinAmt(splitAmt) {
+	return 2 * Math.PI * easeInOut(splitAmt, 2) / 6;
 }
 
 function pointsAreEqual(p1, p2) {
