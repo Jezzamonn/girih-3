@@ -1,5 +1,5 @@
 import { toIsometric } from "./isometric";
-import { slurp, easeInOut, divideInterval } from "./util";
+import { slurp, easeInOut, divideInterval, loop } from "./util";
 
 const PROJECTION_ANGLE = Math.atan(Math.SQRT1_2);
 
@@ -12,7 +12,7 @@ export default class Controller {
 
 	constructor() {
 		this.animAmt = 0;
-		this.period = 9;
+		this.period = 4;
 
 		this.points = [];
 		for (const x of [-1, 1]) {
@@ -69,21 +69,23 @@ export default class Controller {
 	render(context) {
 		context.save();
 
-		const stage = Math.floor(3 * this.animAmt);
-		const subAnimAmt = (3 * this.animAmt) % 1;
-		const rotateyAmt = divideInterval(subAnimAmt, 0, 0.5);
-		const starSplitAmt = divideInterval(subAnimAmt, 0.5, 1);
+		const subAnimAmt = this.animAmt;
+		const stageSplitAmt = 0.5;
+		const rotateyAmt = divideInterval(subAnimAmt, 0, stageSplitAmt);
+		const starSplitAmt = divideInterval(subAnimAmt, stageSplitAmt, 1);
 		
-		context.rotate(stage * 2 * Math.PI / 3);
-		context.translate(hexWidth, hexHeight / 2);
+		const startCenter = {
+			x: 0,
+			y: 0,
+		}
 
 		const rotateAmt = easeInOut(rotateyAmt) + 0.5;
 
-		if (subAnimAmt < 0.5) {
-			this.renderCubes(context, rotateAmt);
+		if (subAnimAmt < stageSplitAmt) {
+			this.renderCubes(context, startCenter, rotateAmt);
 		}
 		else {
-			this.renderStars(context, starSplitAmt);
+			this.renderStars(context, startCenter, starSplitAmt);
 		}
 
 		context.restore();
@@ -120,7 +122,7 @@ export default class Controller {
 	/**
 	 * @param {!CanvasRenderingContext2D} context
 	 */
-	renderCubes(context, rotateAmt) {
+	renderCubes(context, center, rotateAmt) {
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
@@ -128,8 +130,8 @@ export default class Controller {
 				this.renderCubeSet(
 					context,
 					{
-						x: 3 * hexWidth * x,
-						y: 3 * hexHeight * adjustedY,
+						x: center.x + 3 * hexWidth * x,
+						y: center.y + 3 * hexHeight * adjustedY,
 					},
 					rotateAmt
 				);
@@ -188,17 +190,18 @@ export default class Controller {
 		return drawPoints;
 	}
 
-	renderStars(context, splitAmt) {
+	renderStars(context, center, splitAmt) {
+		const spaceMultiple = getSpacingMultiplier(splitAmt);
 		const halfLayers = 5;
 		for (let y = -halfLayers; y <= halfLayers; y++) {
 			for (let x = -halfLayers; x <= halfLayers; x++) {
 				const adjustedX = y % 2 == 0 ? x : x + 0.5;
 				let point = {
-					x: 2 * hexWidth * adjustedX,
-					y: 1.5 * hexHeight * y
+					x: center.x + 2 * hexWidth * adjustedX,
+					y: center.y + 1.5 * hexHeight * y
 				};
-				point.x *= splitAmt;
-				point.y *= splitAmt;
+				point.x *= spaceMultiple;
+				point.y *= spaceMultiple;
 				this.renderStar(
 					context,
 					point,
@@ -234,6 +237,12 @@ export default class Controller {
 		context.restore();
 	}
 
+}
+
+function getSpacingMultiplier(splitAmt) {
+	const invertLoopedAmt = 1 - loop(splitAmt);
+	const biasedAmt = 1 - (invertLoopedAmt * invertLoopedAmt);
+	return 1 + 0.25 * biasedAmt;
 }
 
 function pointsAreEqual(p1, p2) {
